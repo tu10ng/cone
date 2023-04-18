@@ -21,8 +21,8 @@ class Bend:
             ),
             u_range=[0, t],
             v_range=[0, h],
-            checkerboard_colors=[YELLOW_B, YELLOW_B],
-            stroke_color=YELLOW,
+            # checkerboard_colors=[YELLOW_B, YELLOW_B],
+            # stroke_color=YELLOW,
         )
         return cone
 
@@ -43,35 +43,49 @@ class Bend:
         return h, t, r
 
     def animation(self, scene) -> None:
-        tmp = []
         rate = 10
-        for alpha in [i / rate for i in range(1, rate + 1)]:
-            h, t, r = self.recalc_htr(alpha)
-            cone = self.recalc_cone(h, t, r)
-            tmp.append(cone)
+        time = 3
+        tmp = [i / rate for i in range(1, rate + 1)]
 
-        scene.play(Transform(self.sector, tmp[0], rate_func=linear, run_time=1/rate))
-        for i, j in zip(tmp, tmp[1:]):
-            scene.play(Transform(i, j), rate_func=linear, run_time=1/rate)
+        for alpha0, alpha1 in zip(tmp, tmp[1:]):
+            h, t, r = self.recalc_htr(alpha0)
+            cone0 = self.recalc_cone(h, t, r)
+            h, t, r = self.recalc_htr(alpha1)
+            cone1 = self.recalc_cone(h, t, r)
+            if alpha0 == tmp[0]:
+                scene.play(
+                    Transform(self.sector, cone0), rate_func=linear, run_time=time / rate
+                )
+                scene.remove(cone0)
+                scene.remove(self.sector)
+
+            scene.play(Transform(cone0, cone1), rate_func=linear, run_time=time / rate)
+            scene.remove(cone0)
+            if alpha1 != 1:
+                scene.remove(cone1)
 
 
 class anim(ThreeDScene):
     def construct(self):
         axes = ThreeDAxes(x_range=[-6, 6, 1], y_range=[-6, 6, 1], z_range=[-6, 6, 1])
-        self.set_camera_orientation(phi=PI / 4, theta=PI / 4)
+        self.set_camera_orientation(phi=PI / 4, theta=PI/4)
         self.add(axes)
+        self.begin_ambient_camera_rotation()
+        self.wait()
 
-        r0 = 2
+        r0 = 5
         theta = PI / 2
 
-        sector = Sector(r0).rotate(-PI / 4, about_point=ORIGIN)
+        sector = Sector(r0)
+        sector.rotate(PI/2, axis=np.array([PI/4, PI/4, 0.0]))
+        # .rotate(-PI / 4, about_point=ORIGIN)
         sector.set_fill(WHITE, opacity=0.3)
         self.add(sector)
-        self.wait()
+        self.wait(3)
 
         bend = Bend(sector, r0, theta, axes)
         bend.animation(self)
-        self.wait()
+        self.wait(3)
 
         # alpha = 0.1
         # h, t, r = recalc_htr(alpha, r0, theta)
