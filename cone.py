@@ -53,13 +53,15 @@ class Bend:
         scene.add(cone)
         scene.play(ReplacementTransform(self.sector, cone))
         scene.play(alpha.animate(run_time=4, rate_func=smooth).set_value(1))
-        
+
         h, t, r = self.recalc_htr(1)
-        final_cone = Cone(base_radius=self.axes.c2p(0, r)[1],
-                          height=self.axes.c2p(h, 0)[0],
-                          direction=LEFT,
-                          checkerboard_colors=False,
-                          show_base=True)
+        final_cone = Cone(
+            base_radius=self.axes.c2p(0, r)[1],
+            height=self.axes.c2p(h, 0)[0],
+            direction=LEFT,
+            checkerboard_colors=False,
+            show_base=True,
+        )
         scene.play(ReplacementTransform(cone, final_cone))
         scene.wait()
 
