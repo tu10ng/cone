@@ -1,0 +1,5 @@
+* run
+#+begin_src fish
+manim cone.py anim
+
+#+end_src
